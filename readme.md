@@ -1,4 +1,4 @@
-# Plug-n-Don't-Play Worker
+# Plug-n-Don't-Play-me — Worker
 
 Cloudflare Worker responsible for securely proxying baseline requests from the Plug-n-Don't-Play client to the official GitHub RAW repository.
 
