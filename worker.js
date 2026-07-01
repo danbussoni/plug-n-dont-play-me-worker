@@ -17,7 +17,7 @@ export default {
     const url = new URL(request.url);
 
     // ============================================================
-    // Endpoint único permitido
+    // Exclusive Endpoint
     // ============================================================
 
     if (url.pathname !== "/win_default_services_config.map") {
@@ -35,7 +35,7 @@ export default {
     }
 
     // ============================================================
-    // Apenas GET e HEAD
+    // GET/HEAD Only
     // ============================================================
 
     if (request.method !== "GET" &&
@@ -56,7 +56,7 @@ export default {
     }
 
     // ============================================================
-    // Rejeita qualquer payload
+    // Payload Rejection
     // ============================================================
 
     const contentLength =
@@ -81,7 +81,7 @@ export default {
     }
 
     // ============================================================
-    // Encaminha somente os headers necessários
+    // Redirects
     // ============================================================
 
     const forwardHeaders = new Headers();
@@ -106,7 +106,7 @@ export default {
       );
 
       // ==========================================================
-      // Log consolidado
+      // Logging
       // ==========================================================
 
       console.log({
@@ -135,7 +135,7 @@ export default {
       });
 
       // ==========================================================
-      // Preserva TODOS os headers do GitHub
+      // Headers
       // ==========================================================
 
       const headers =
