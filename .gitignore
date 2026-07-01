@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VSCode
+.vscode/
+
+# Node (future-proof)
+node_modules/
+
+# Wrangler
+.wrangler/
+
+# Logs
+*.log
