@@ -15,7 +15,7 @@ export default {
     const url = new URL(request.url);
 
     // ============================================================
-    // Single allowed endpoint
+    // Only single allowed endpoint
     // ============================================================
     if (url.pathname !== "/win_default_services_config.map") {
       console.warn({
@@ -28,7 +28,7 @@ export default {
     }
 
     // ============================================================
-    // GET & HEAD only
+    // GET and HEAD only
     // ============================================================
     if (request.method !== "GET" && request.method !== "HEAD") {
       console.warn({
@@ -43,7 +43,7 @@ export default {
     }
 
     // ============================================================
-    // Payload rejection
+    // Reject any payload
     // ============================================================
     const contentLength = request.headers.get("content-length");
 
@@ -58,7 +58,7 @@ export default {
     }
 
     // ============================================================
-    // Forwards only the necessary headers.
+    // Forward only the necessary headers
     // ============================================================
     const forwardHeaders = new Headers();
 
@@ -68,8 +68,8 @@ export default {
     }
 
     try {
-      // ⚡ Added cf: { encodeBody: false } to prevent dynamic compressions
-      // that force the use of the Chunked protocol on the mesh.
+      // ⚡ ALTERATION 1: Added cf: { encodeBody: false } to prevent dynamic
+      // compressions that force the use of the Chunked protocol on the mesh.
       const response = await fetch(GITHUB_RAW, {
         method: request.method,
         headers: forwardHeaders,
@@ -77,7 +77,7 @@ export default {
       });
 
       // ==========================================================
-      // Logging
+      // Consolidated log
       // ==========================================================
       console.log({
         method: request.method,
@@ -91,31 +91,33 @@ export default {
       });
 
       // ==========================================================
-      // Preserves ALL GitHub headers and injects static control.
+      // Preserve ALL GitHub headers
       // ==========================================================
       const headers = new Headers(response.headers);
 
       headers.set("X-Baseline-Proxy", "Cloudflare");
-      headers.set("X-Worker-Version", "1.1");
-      
-      // ⚡ Forces the Cache-Control header to instruct intermediate proxies
-      // and CDNs not to alter the payload in any way.
+      headers.set("X-Worker-Version", "1.2");
       headers.set("Cache-Control", "no-transform, public, max-age=0");
 
-      // ⚡ Captures the original size delivered by GitHub.
       const originalLength = response.headers.get("content-length");
-
-      // Manually setting Content-Length in the final Worker response
       if (originalLength) {
         headers.set("Content-Length", originalLength);
       }
 
-      // ⚡ For HEAD requests, explicitly return a null body.
-      // This prevents Cloudflare's V8 engine from attempting to calculate 
-      // the streaming of an empty body and removing the Content-Length header we injected above.
-      const responseBody = request.method === "HEAD" ? null : response.body;
+      // ==========================================================
+      // ⚡ FINAL SOLUTION: Break the dynamic scope streaming
+      // ==========================================================
+      let responseData;
+      
+      if (request.method === "HEAD") {
+        responseData = null;
+      } else {
+        // Reading as ArrayBuffer forces Cloudflare to load the fixed size
+        // and prevents the HTTP pipeline from injecting 'Transfer-Encoding: chunked'
+        responseData = await response.arrayBuffer();
+      }
 
-      return new Response(responseBody, {
+      return new Response(responseData, {
         status: response.status,
         statusText: response.statusText,
         headers
@@ -130,8 +132,4 @@ export default {
       return new Response("Bad Gateway", { status: 502 });
     }
   }
-};
-
-  }
-
 };
