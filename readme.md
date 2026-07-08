@@ -45,18 +45,17 @@ This project leverages a modern **GitOps Continuous Integration & Continuous Dep
 
 The infrastructure operates via an inter-cloud reactive pattern, completely removing manual overhead from the deployment lifecycle:
 
-graph TD
-    A[Developer] -->|Web / Local Commit| B(GitHub Repository)
-    B -->|Webhook Trigger| C{Cloudflare Edge}
-    C --> D[Automated Syntax Validation]
-    C --> E[Wrangler Isolation Build]
-    D --> F[Live Worker Engine v.X]
-    E --> F
-    
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#f96,stroke:#333,stroke-width:2px
-    style F fill:#9f9,stroke:#333,stroke-width:2px
+```text
+  [ Developer ]
+        │
+        │ (Web / Local Commit)
+        ▼
+  [ GitHub Repository ] ─── (Webhook Trigger) ───► [ Cloudflare Edge ]
+                                                           │
+                                                           ├─► Automated Syntax Validation
+                                                           ├─► Wrangler Isolation Build
+                                                           ▼
+                                               [ Live Worker Engine v.X ]
 
 ### 🛠️ Continuous Deployment Pipeline Specifications
 
