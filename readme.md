@@ -66,6 +66,7 @@ The deployment pipeline is governed by Cloudflare Workers Builds using strict ru
 * **Target Build Script:**
   ```bash
   npx wrangler deploy worker.js --name plug-n-dont-play-me --compatibility-date 'XPTO'
-  Immutable Version Snapshot: The --compatibility-date locks the V8 engine runtime mechanics to ensure downstream changes in Cloudflare's core infrastructure will never introduce breaking anomalies into the reverse proxy logic.
+
+Immutable Version Snapshot: The --compatibility-date locks the V8 engine runtime mechanics to ensure downstream changes in Cloudflare's core infrastructure will never introduce breaking anomalies into the reverse proxy logic.
 
 Deterministic Payload Delivery: The pipeline forces memory-buffered streaming (response.arrayBuffer()) to bypass intermediate chunked transfer encodings (Transfer-Encoding: chunked), successfully preserving static Content-Length metadata for low-level client networking subsystems (e.g., WinINet).
