@@ -96,8 +96,11 @@ export default {
       const headers = new Headers(response.headers);
 
       headers.set("X-Baseline-Proxy", "Cloudflare");
-      headers.set("X-Worker-Version", "1.2");
+      headers.set("X-Worker-Version", "1.3");
       headers.set("Cache-Control", "no-transform, public, max-age=0");
+      
+      // ⚡ FORCE CLOUDFLARE TO PRESERVE THE ORIGINAL CONTENT-LENGTH
+      headers.set("Content-Encoding", "identity");
 
       const originalLength = response.headers.get("content-length");
       if (originalLength) {
