@@ -57,6 +57,7 @@ The infrastructure operates via an inter-cloud reactive pattern, completely remo
                                                            ▼
                                                [ Live Worker Engine v.X ]
 
+```
 ### 🛠️ Continuous Deployment Pipeline Specifications
 
 The deployment pipeline is governed by Cloudflare Workers Builds using strict runtime compatibility flags to preserve edge predictability:
