@@ -37,8 +37,32 @@ Its purpose is to provide:
 - Observability
 - Operational transparency
 
-## Repository
+## 🔄 Repository: CI/CD & Infrastructure Topology
 
-This repository contains only the Worker source code.
+This project leverages a modern **GitOps Continuous Integration & Continuous Deployment (CI/CD)** pipeline that orchestrates state synchronization across cloud providers. Every change committed to the core configurations triggers an automated, headless deployment directly to the network edge.
 
-The Windows baseline files remain hosted in the dedicated RAW repository.
+### 🌐 Architectural Flow
+
+The infrastructure operates via an inter-cloud reactive pattern, completely removing manual overhead from the deployment lifecycle:
+
+[ Developer ]
+│ (Web / Local Commit)
+▼
+[ GitHub Repository ] ──── (Webhook Trigger) ────► [ Cloudflare Edge Network ]
+│
+├─► Automated Syntax Validation
+├─► Wrangler Isolation Build
+▼
+[ Live Worker Engine v.X]
+
+### 🛠️ Continuous Deployment Pipeline Specifications
+
+The deployment pipeline is governed by Cloudflare Workers Builds using strict runtime compatibility flags to preserve edge predictability:
+
+* **Build Engine:** `wrangler@4.108.0` (Automated environment virtualization).
+* **Target Build Script:**
+  ```bash
+  npx wrangler deploy worker.js --name plug-n-dont-play-me --compatibility-date 'XPTO'
+  Immutable Version Snapshot: The --compatibility-date locks the V8 engine runtime mechanics to ensure downstream changes in Cloudflare's core infrastructure will never introduce breaking anomalies into the reverse proxy logic.
+
+Deterministic Payload Delivery: The pipeline forces memory-buffered streaming (response.arrayBuffer()) to bypass intermediate chunked transfer encodings (Transfer-Encoding: chunked), successfully preserving static Content-Length metadata for low-level client networking subsystems (e.g., WinINet).
