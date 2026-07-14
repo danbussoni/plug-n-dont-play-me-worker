@@ -1,0 +1,14 @@
+{
+  "name": "plug-n-dont-play-me",
+
+  "main": "worker.js",
+
+  "compatibility_date": "2026-07-14",
+
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  }
+}
