@@ -96,10 +96,10 @@ export default {
       const headers = new Headers(response.headers);
 
       headers.set("X-Baseline-Proxy", "Cloudflare");
-      headers.set("X-Worker-Version", "1.3");
+      headers.set("X-Worker-Version", "1.4");
       headers.set("Cache-Control", "no-transform, public, max-age=0");
       
-      // ⚡ FORCE CLOUDFLARE TO PRESERVE THE ORIGINAL CONTENT-LENGTH
+      // FORCE CLOUDFLARE TO PRESERVE THE ORIGINAL CONTENT-LENGTH
       headers.set("Content-Encoding", "identity");
 
       const originalLength = response.headers.get("content-length");
@@ -108,7 +108,28 @@ export default {
       }
 
       // ==========================================================
-      // ⚡ FINAL SOLUTION: Break the dynamic scope streaming
+      // ⚡ FIX FOR 304 CANNIBALIZATION: Manual ETag Validation
+      // ==========================================================
+      const clientIfNoneMatch = request.headers.get("if-none-match");
+      const originETag = response.headers.get("etag");
+
+      if (clientIfNoneMatch && originETag) {
+        // Strips quotes and the 'W/' weak validator prefix from Cloudflare/GitHub to ensure an exact match.
+        const cleanClientTag = clientIfNoneMatch.replace(/^W\/|"|\s/g, "");
+        const cleanOriginTag = originETag.replace(/^W\/|"|\s/g, "");
+
+        if (cleanClientTag === cleanOriginTag || response.status === 304) {
+          console.log({ event: "FORCE_304_MATCH", tag: cleanClientTag });
+          return new Response(null, {
+            status: 304,
+            statusText: "Not Modified",
+            headers
+          });
+        }
+      }
+
+      // ==========================================================
+      // BREAK THE DYNAMIC SCOPE STREAMING (if only not 304)
       // ==========================================================
       let responseData;
       
