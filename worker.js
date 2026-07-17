@@ -68,7 +68,7 @@ export default {
     }
 
     try {
-      // ⚡ ALTERATION 1: Added cf: { encodeBody: false } to prevent dynamic
+      // ⚡ cf: { encodeBody: false } to prevent dynamic
       // compressions that force the use of the Chunked protocol on the mesh.
       const response = await fetch(GITHUB_RAW, {
         method: request.method,
@@ -128,18 +128,34 @@ export default {
         }
       }
 
-      // ==========================================================
-      // BREAK THE DYNAMIC SCOPE STREAMING (if only not 304)
-      // ==========================================================
-      let responseData;
-      
-      if (request.method === "HEAD") {
-        responseData = null;
-      } else {
-        // Reading as ArrayBuffer forces Cloudflare to load the fixed size
-        // and prevents the HTTP pipeline from injecting 'Transfer-Encoding: chunked'
-        responseData = await response.arrayBuffer();
+      // ----------------------------------------------------------
+      // FALLBACK ROUTE 1: Fallback to origin's native 304 (e.g., by date)
+      // ----------------------------------------------------------
+      if (response.status === 304) {
+        return new Response(null, {
+          status: 304,
+          statusText: "Not Modified",
+          headers
+        });
       }
+
+      // ----------------------------------------------------------
+      // ISOLATED ROUTE 2: HEAD Request To (Network Auditing)
+      // ----------------------------------------------------------
+      if (request.method === "HEAD") {
+        return new Response(null, {
+          status: response.status,
+          statusText: response.statusText,
+          headers
+        });
+      }
+
+      // ----------------------------------------------------------
+      // ISOLATED ROUTE 3: GET Request For (Data Synchronization)
+      // ----------------------------------------------------------
+      // Reading as ArrayBuffer forces Cloudflare to load the fixed size
+      // and prevents the HTTP pipeline from injecting 'Transfer-Encoding: chunked'
+      const responseData = await response.arrayBuffer();
 
       return new Response(responseData, {
         status: response.status,
